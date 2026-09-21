@@ -1,0 +1,19 @@
+Setting,Model,Metric,Probability beats original TV-MVP
+gaussian,Equal weight,Realised variance,0.67
+gaussian,Equal weight,Realised ES 95%,0.65
+gaussian,Dynamic SigmaF TV-MVP,Realised variance,0.48
+gaussian,Dynamic SigmaF TV-MVP,Realised ES 95%,0.47
+gaussian,Dynamic-factor CVaR,Realised variance,0.27
+gaussian,Dynamic-factor CVaR,Realised ES 95%,0.31
+regime_shift,Equal weight,Realised variance,0.71
+regime_shift,Equal weight,Realised ES 95%,0.64
+regime_shift,Dynamic SigmaF TV-MVP,Realised variance,0.21
+regime_shift,Dynamic SigmaF TV-MVP,Realised ES 95%,0.19
+regime_shift,Dynamic-factor CVaR,Realised variance,0.64
+regime_shift,Dynamic-factor CVaR,Realised ES 95%,0.62
+student_t,Equal weight,Realised variance,0.54
+student_t,Equal weight,Realised ES 95%,0.53
+student_t,Dynamic SigmaF TV-MVP,Realised variance,0.54
+student_t,Dynamic SigmaF TV-MVP,Realised ES 95%,0.6
+student_t,Dynamic-factor CVaR,Realised variance,0.22
+student_t,Dynamic-factor CVaR,Realised ES 95%,0.29
