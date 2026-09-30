@@ -1,4 +1,0 @@
-Strategy 1,Strategy 2,Metric,Estimate,CI lower,CI upper,Bootstrap p-value,Bootstrap draws,Block length (days)
-Empirical CVaR (matched),Regularized filtered CVaR (matched),Volatility benefit: high minus normal,-0.003766874623346368,-0.009728659247151324,0.0022692148050461945,0.23411705852926462,1999,21
-Empirical CVaR (matched),Regularized filtered CVaR (matched),ES benefit: high minus normal,-0.002915180317537307,-0.028025683507897317,0.016082109865203826,0.7403701850925463,1999,21
-Empirical CVaR (matched),Regularized filtered CVaR (matched),Arithmetic net-return benefit: high minus normal,0.015466917812918493,-0.05940791015055284,0.10036812725774943,0.6653326663331666,1999,21

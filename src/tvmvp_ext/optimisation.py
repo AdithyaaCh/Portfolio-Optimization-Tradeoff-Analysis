@@ -28,6 +28,55 @@ def minimum_variance_weights(covariance: np.ndarray, long_only: bool = False, ma
     return result.x
 
 
+def turnover_regularized_minimum_variance_weights(
+    covariance: np.ndarray,
+    previous_weights: np.ndarray,
+    penalty: float,
+    max_weight: float,
+) -> np.ndarray:
+    """Long-only MVP with an L1 penalty on trades from pre-rebalance weights."""
+    covariance = np.asarray(covariance, float)
+    previous = np.asarray(previous_weights, float)
+    p = len(previous)
+    if penalty < 0:
+        raise ValueError("Turnover penalty must be non-negative")
+    if penalty == 0:
+        return minimum_variance_weights(covariance, long_only=True, max_weight=max_weight)
+
+    # Variables are portfolio weights followed by absolute-trade auxiliaries.
+    initial_weights = np.clip(previous, 0, max_weight)
+    initial_weights /= initial_weights.sum()
+    initial = np.r_[initial_weights, np.abs(initial_weights - previous)]
+
+    def objective(x: np.ndarray) -> float:
+        weights, trades = x[:p], x[p:]
+        return float(weights @ covariance @ weights + penalty * trades.sum())
+
+    def gradient(x: np.ndarray) -> np.ndarray:
+        return np.r_[2 * covariance @ x[:p], np.full(p, penalty)]
+
+    # u >= w-w0 and u >= -(w-w0).
+    constraints = [
+        {"type": "eq", "fun": lambda x: x[:p].sum() - 1, "jac": lambda x: np.r_[np.ones(p), np.zeros(p)]},
+        {"type": "ineq", "fun": lambda x: x[p:] - x[:p] + previous,
+         "jac": lambda x: np.c_[-np.eye(p), np.eye(p)]},
+        {"type": "ineq", "fun": lambda x: x[p:] + x[:p] - previous,
+         "jac": lambda x: np.c_[np.eye(p), np.eye(p)]},
+    ]
+    result = minimize(
+        objective,
+        initial,
+        jac=gradient,
+        bounds=[(0.0, max_weight)] * p + [(0.0, None)] * p,
+        constraints=constraints,
+        method="SLSQP",
+        options={"ftol": 1e-12, "maxiter": 1000},
+    )
+    if not result.success:
+        raise RuntimeError(f"Turnover-regularized MVP optimisation failed: {result.message}")
+    return result.x[:p]
+
+
 def cvar_weights(scenarios: np.ndarray, confidence: float, max_weight: float | None) -> np.ndarray:
     """Rockafellar-Uryasev empirical loss-CVaR linear program."""
     scenarios = np.asarray(scenarios, float)

@@ -9,7 +9,7 @@ description = "Reproduction and dynamic-covariance/CVaR extensions of TV-MVP"
 requires-python = ">=3.10"
 dependencies = [
   "numpy>=1.24", "pandas>=2.0", "scipy>=1.10",
-  "matplotlib>=3.7", "seaborn>=0.12", "PyYAML>=6.0", "yfinance>=0.2"
+  "matplotlib>=3.7", "PyYAML>=6.0"
 ]
 
 [tool.setuptools.packages.find]

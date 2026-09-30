@@ -44,6 +44,46 @@ def sample_factor_covariance(scores: np.ndarray, floor: float) -> tuple[np.ndarr
     return nearest_positive_definite(cov, floor)
 
 
+def downside_second_moment(values: np.ndarray, floor: float) -> tuple[np.ndarray, dict]:
+    """PSD lower-partial second moment around the historical component means."""
+    observations = np.asarray(values, float)
+    centered = observations - observations.mean(axis=0)
+    downside = np.minimum(centered, 0.0)
+    moment = downside.T @ downside / len(downside)
+    moment = np.atleast_2d(moment)
+    fixed, repair = nearest_positive_definite(moment, floor)
+    repair["negative_observation_fraction"] = float(np.mean(centered < 0))
+    return fixed, repair
+
+
+def sparse_downside_residual_moment(
+    residuals: np.ndarray,
+    threshold_scale: float,
+    floor: float,
+) -> tuple[np.ndarray, dict]:
+    """Threshold a residual lower-partial correlation while preserving semivariances."""
+    values = np.asarray(residuals, float)
+    centered = values - values.mean(axis=0)
+    downside = np.minimum(centered, 0.0)
+    moment = downside.T @ downside / len(downside)
+    semideviation = np.sqrt(np.maximum(np.diag(moment), floor))
+    correlation = moment / np.outer(semideviation, semideviation)
+    p, n = values.shape[1], values.shape[0]
+    cutoff = threshold_scale * np.sqrt(np.log(max(p, 2)) / max(n, 2))
+    off = correlation - np.diag(np.diag(correlation))
+    sparse_off = np.sign(off) * np.maximum(np.abs(off) - cutoff, 0.0)
+    sparse = sparse_off * np.outer(semideviation, semideviation)
+    np.fill_diagonal(sparse, np.diag(moment))
+    fixed, repair = nearest_positive_definite(sparse, floor)
+    mask = ~np.eye(p, dtype=bool)
+    repair.update({
+        "correlation_cutoff": float(cutoff),
+        "off_diagonal_sparsity": float(np.mean(sparse_off[mask] == 0)),
+        "negative_observation_fraction": float(np.mean(centered < 0)),
+    })
+    return fixed, repair
+
+
 def ewma_factor_covariance(scores: np.ndarray, decay: float, floor: float) -> tuple[np.ndarray, dict]:
     """Normalised EWMA covariance; recent estimated scores receive the largest weight."""
     if not 0 < decay < 1:
@@ -60,3 +100,29 @@ def ewma_factor_covariance(scores: np.ndarray, decay: float, floor: float) -> tu
     repair["effective_observations"] = float(1.0 / (weights @ weights))
     return fixed, repair
 
+
+def dynamically_scaled_residual_covariance(
+    residuals: np.ndarray,
+    static_covariance: np.ndarray,
+    decay: float,
+    floor: float,
+) -> tuple[np.ndarray, dict]:
+    """Keep the sparse residual correlation and update only marginal variances."""
+    if not 0 < decay < 1:
+        raise ValueError("EWMA decay must be in (0, 1)")
+    values = np.asarray(residuals, float)
+    n = len(values)
+    weights = decay ** np.arange(n - 1, -1, -1, dtype=float)
+    weights /= weights.sum()
+    mean = weights @ values
+    centered = values - mean
+    correction = max(1.0 - float(weights @ weights), 1e-12)
+    dynamic_variance = np.sum(weights[:, None] * centered ** 2, axis=0) / correction
+
+    static_sd = np.sqrt(np.maximum(np.diag(static_covariance), floor))
+    correlation = static_covariance / np.outer(static_sd, static_sd)
+    dynamic_sd = np.sqrt(np.maximum(dynamic_variance, floor))
+    covariance = correlation * np.outer(dynamic_sd, dynamic_sd)
+    fixed, repair = nearest_positive_definite(covariance, floor)
+    repair["effective_observations"] = float(1.0 / (weights @ weights))
+    return fixed, repair

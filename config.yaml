@@ -1,125 +1,15 @@
 project:
-  seed: 20260906
-  workers: 4
   annualisation_days: 252
-  output_dir: results
-
-data:
-  source: yahoo_finance
-  start: '2015-01-01'
-  end: '2026-09-05'
-  index_ticker: '^NSEI'
-  min_history_fraction: 0.985
-  tickers:
-    - ADANIPORTS.NS
-    - APOLLOHOSP.NS
-    - ASIANPAINT.NS
-    - AXISBANK.NS
-    - BAJAJ-AUTO.NS
-    - BAJFINANCE.NS
-    - BAJAJFINSV.NS
-    - BEL.NS
-    - BHARTIARTL.NS
-    - CIPLA.NS
-    - COALINDIA.NS
-    - DRREDDY.NS
-    - EICHERMOT.NS
-    - GRASIM.NS
-    - HCLTECH.NS
-    - HDFCBANK.NS
-    - HINDALCO.NS
-    - HINDUNILVR.NS
-    - ICICIBANK.NS
-    - ITC.NS
-    - INFY.NS
-    - JSWSTEEL.NS
-    - KOTAKBANK.NS
-    - LT.NS
-    - M&M.NS
-    - MARUTI.NS
-    - NTPC.NS
-    - NESTLEIND.NS
-    - ONGC.NS
-    - POWERGRID.NS
-    - RELIANCE.NS
-    - SBIN.NS
-    - SUNPHARMA.NS
-    - TCS.NS
-    - TATASTEEL.NS
-    - TECHM.NS
-    - TITAN.NS
-    - TRENT.NS
-    - ULTRACEMCO.NS
-    - WIPRO.NS
 
 estimation:
   window_days: 504
   factor_number: 3
-  max_factor_number_reproduction: 6
   bandwidth: rule_of_thumb
   residual_threshold: 0.15
   eigenvalue_floor: 1.0e-7
-  ewma_decay: 0.94
-  rebalance: month_end
-
-cvar:
-  confidence: 0.95
-  scenarios: 600
-  scenario_block_days: 10
-  long_only: true
-  max_weight: 0.10
-
-cvar_improved:
-  scenarios: 800
-  recent_block_decay: 0.995
-  residual_ewma_decay: 0.97
-  residual_dynamic_weight: 0.50
-  stress_fraction: 0.15
-  factor_stress_multiplier: 1.50
-  residual_stress_multiplier: 1.15
-  turnover_penalty: 0.0010
-  diversification_penalty: 0.00025
 
 evaluation:
   transaction_cost_bps: 10
-  post_covid_start: '2021-01-01'
-  realised_es_confidence: 0.95
-  rolling_days: 63
   index_volatility_days: 21
   high_volatility_quantile: 0.75
   high_volatility_min_history: 126
-
-inference:
-  bootstrap_draws: 1999
-  monthly_block_length: 3
-  regime_daily_block_length: 21
-  confidence: 0.95
-  primary_comparisons:
-    - [Original TV-MVP, Dynamic SigmaF TV-MVP]
-    - [Dynamic SigmaF TV-MVP, Dynamic-factor CVaR]
-  matched_primary_comparisons:
-    - [Original covariance MVP (matched), Dynamic-factor CVaR (matched)]
-    - [Dynamic covariance MVP (matched), Dynamic-factor CVaR (matched)]
-  improved_cvar_primary_comparisons:
-    - [Empirical CVaR (matched), Filtered-stressed CVaR (matched)]
-    - [Original covariance MVP (matched), Regularized filtered CVaR (matched)]
-  improved_cvar_regime_comparison:
-    - Empirical CVaR (matched)
-    - Regularized filtered CVaR (matched)
-
-simulation:
-  replications: 100
-  assets: 20
-  estimation_days: 180
-  evaluation_days: 63
-  factor_number: 2
-  student_df: 5
-  scenarios: 350
-
-sensitivity:
-  evaluation_start: '2021-01-01'
-  ewma_decay: [0.90, 0.94, 0.97]
-  window_days: [378, 504, 756]
-  factor_number: [2, 3, 5]
-  cvar_confidence: [0.90, 0.95, 0.99]
-  transaction_cost_bps: [0, 10, 25]

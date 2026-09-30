@@ -1,0 +1,5 @@
+Model,Beta to equal weight,Correlation to equal weight,Annual tracking error vs equal weight
+Equal weight,1.0,1.0,0.0
+Original covariance MVP (matched),0.7742160173738916,0.8937742112052349,0.07163404655811072
+Dynamic covariance MVP (matched),0.7780114543435563,0.8929620373766564,0.07184005781263483
+Dynamic-factor CVaR (matched),0.7913788499955913,0.88933631881147,0.07289212257175068

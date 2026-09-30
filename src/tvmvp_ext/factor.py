@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.linalg import subspace_angles
+from scipy.linalg import orthogonal_procrustes, subspace_angles
 
 
 @dataclass
@@ -30,7 +30,12 @@ def _epanechnikov_weights(n: int, target: int, bandwidth: float) -> np.ndarray:
     return kernel / total
 
 
-def fit_local_factor_model(returns: np.ndarray, factors: int, bandwidth: float | str = "rule_of_thumb") -> FactorFit:
+def fit_local_factor_model(
+    returns: np.ndarray,
+    factors: int,
+    bandwidth: float | str = "rule_of_thumb",
+    align_to_endpoint: bool = False,
+) -> FactorFit:
     """Local PCA at every date, followed by contemporaneous factor-score regressions."""
     x = np.asarray(returns, float)
     n, p = x.shape
@@ -53,6 +58,15 @@ def fit_local_factor_model(returns: np.ndarray, factors: int, bandwidth: float |
         loadings[target] = loading
         previous = loading
         explained[target] = float(np.sum(singular[:factors] ** 2) / max(np.sum(singular ** 2), 1e-16))
+    if align_to_endpoint:
+        # Local PCA identifies a factor space, not an ordered basis.  Put every
+        # historical loading estimate in the endpoint basis before estimating
+        # a time-series covariance of the corresponding factor scores.
+        endpoint = loadings[-1].copy()
+        for t in range(n - 1):
+            rotation, _ = orthogonal_procrustes(loadings[t], endpoint)
+            loadings[t] = loadings[t] @ rotation
+
     scores = np.empty((n, factors))
     residuals = np.empty_like(x)
     for t in range(n):
