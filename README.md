@@ -10,6 +10,8 @@ method improve, and what does it give up in exchange?** All headline comparisons
 use the same long-only constraints, rebalance schedule, transaction-cost model,
 and out-of-sample dates.
 
+Eleven constituents were excluded because they could not support the common historical sample: ten during the initial long-history screening and TRENT after the data download returned no usable observations.
+
 The code for the TV-MVP method was from this paper - 
 https://www.sciencedirect.com/science/article/pii/S0304407622001646
 
