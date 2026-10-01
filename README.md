@@ -10,6 +10,9 @@ method improve, and what does it give up in exchange?** All headline comparisons
 use the same long-only constraints, rebalance schedule, transaction-cost model,
 and out-of-sample dates.
 
+The code for the TV-MVP method was from this paper - 
+https://www.sciencedirect.com/science/article/pii/S0304407622001646
+
 ## Research questions
 
 - Does minimum-variance optimization provide meaningful protection during
